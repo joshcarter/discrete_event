@@ -187,7 +187,8 @@ module DiscreteEvent
       # this should not be possible.
       if @recur_interval
         event.time = @now + @recur_interval
-        @events.replace_top(event)
+        @events.pop
+        @events.push(event)
         @recur_interval = nil
       else
         @events.pop
