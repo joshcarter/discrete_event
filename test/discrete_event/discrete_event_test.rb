@@ -112,6 +112,45 @@ class TestDiscreteEvent < Test::Unit::TestCase
     assert_equal [0, 5, 10, 15, 20], output
   end
 
+  def test_recur_after_with_other_events
+    output = []
+    DiscreteEvent.simulation {
+      at 7 do
+        output << now
+      end
+
+      at 13 do
+        output << now
+      end
+
+      at 0 do
+        output << now
+        recur_after 5 if now < 20
+      end
+
+      run
+    }
+    assert_equal [0, 5, 7, 10, 13, 15, 20], output
+  end
+
+  def test_multiple_recurrances
+    output = []
+    DiscreteEvent.simulation {
+      every 5 do
+        output << now
+        throw :stop if (now >= 20)
+      end
+      
+      every 7 do
+        output << now
+        throw :stop if (now >= 20)
+      end
+
+      run
+    }
+    assert_equal [0, 0, 5, 7, 10, 14, 15, 20], output
+  end
+
   def test_recur_after_with_after_0
     # Putting a new event in the queue and then calling recur_after should not
     # displace the root element, even if you call after(0), which is just an

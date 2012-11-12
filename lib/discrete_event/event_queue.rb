@@ -221,9 +221,9 @@ module DiscreteEvent
         # run the action
         @now = event.time
         event.action.call
+        @events.pop
 
-        # recurring events get special treatment: can avoid doing a push and a
-        # pop by reusing the Event at the top of the heap, but with a new time
+        # schedule next recurring event
         #
         # NB: this assumes that the top element in the heap can't change due to
         # the event that we just ran, which is the case here, because we don't
@@ -231,11 +231,8 @@ module DiscreteEvent
         # of the PQueue datastructure
         if @recur_interval
           event.time = @now + @recur_interval
-          @events.pop
           @events.push(event)
           @recur_interval = nil
-        else
-          @events.pop
         end
 
         true
